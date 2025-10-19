@@ -103,7 +103,7 @@ graph TD
     B -->|2. 提交RSS链接和邮箱| C[settings-worker];
     C -->|3. 保存配置到| D[Cloudflare KV];
     
-    subgraph 定时任务 (Cron Trigger)
+    subgraph "定时任务 (Cron Trigger)"
         E[Cloudflare Cron] -->|4. 定时触发| F[cron-worker];
         F -->|5. 从KV读取配置| D;
         F -->|6. 获取RSS文章| G[Google Alerts RSS];
@@ -137,6 +137,20 @@ graph TD
     -   一个键值存储服务，用于持久化存储两类数据：
         1.  用户的配置信息（RSS 链接和邮箱）。
         2.  已处理过的文章 ID 列表，用于避免重复分析和发送通知。
+
+## 架构决策 (FAQ)
+
+### 为什么 `settings-worker` 没有独立的 `debug` 环境？
+
+`cron-worker` 的 `debug` 环境主要用于在线上手动触发和测试完整的后台定时任务流程。而 `settings-worker` 是一个简单的 API 服务，其功能可以通过直接使用部署好的前端页面进行完整测试，因此无需一个独立的 `debug` 版本。
+
+### 为什么不将 `settings-worker` 和 `cron-worker` 合并？
+
+遵循软件工程的**关注点分离 (Separation of Concerns)**原则，我们将这两个 Worker 保持独立：
+
+1.  **职责单一**: `settings-worker` 负责处理用户交互和配置存储（由 HTTP 请求触发），而 `cron-worker` 负责核心的后台数据处理（由定时任务触发）。这使得各自的代码库更清晰、更易于维护。
+2.  **安全与入口**: API 服务 (`settings-worker`) 需要一个公开的 HTTP 入口，而后台任务 (`cron-worker`) 则不应该被外部直接调用。分离部署便于管理不同的安全策略。
+3.  **可扩展性**: 将实时 API 与后台任务分离是一种更具扩展性的架构模式，有利于未来对两者进行独立的资源管理和优化。
 
 ## 贡献
 

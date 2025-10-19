@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 事件哨兵设置</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* A light gray background */
+        }
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+        .card:hover {
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+        .btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .status-message {
+            transition: all 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen py-8">
+    <div class="card w-full max-w-lg p-8 md:p-10 mx-4">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">AI 事件哨兵设置</h1>
+            <p class="text-gray-500 mt-2">配置您的自动化信息监控流程</p>
+        </div>
+        
+        <form id="settingsForm">
+            <div class="space-y-6">
+                <div>
+                    <label for="rssUrls" class="block text-sm font-medium text-gray-700 mb-1">
+                        Google Alerts RSS 链接 (一行一个)
+                    </label>
+                    <textarea id="rssUrls" name="rssUrls" rows="4"
+                           class="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                           placeholder="https://www.google.com/alerts/feeds/..." required></textarea>
+                    <p class="text-xs text-gray-400 mt-1">请确保在Google Alerts中将通知方式设置为“RSS Feed”。</p>
+                </div>
+
+                <div>
+                    <label for="emailSubject" class="block text-sm font-medium text-gray-700 mb-1">
+                        邮件主题
+                    </label>
+                    <input type="text" id="emailSubject" name="emailSubject" 
+                           class="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                           placeholder="例如：【事件新进展】" value="【AI哨兵】发现事件新进展！" required>
+                </div>
+                
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+                        接收通知邮箱
+                    </label>
+                    <input type="email" id="email" name="email" 
+                           class="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
+                           placeholder="you@example.com" required>
+                </div>
+            </div>
+            
+            <div class="mt-8">
+                <button type="submit" id="submitButton"
+                        class="btn w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-white font-semibold bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    保存设置
+                </button>
+            </div>
+        </form>
+        
+        <div id="status" class="status-message mt-6 text-center text-sm font-medium h-5">
+            <!-- Status messages will appear here -->
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        document.getElementById("settingsForm").addEventListener("submit", async function(event) {
+            event.preventDefault(); // Prevent the form from actually submitting
+            
+            const rssUrlsRaw = document.getElementById("rssUrls").value;
+            const emailSubject = document.getElementById("emailSubject").value;
+            const email = document.getElementById("email").value;
+            
+            const statusEl = document.getElementById("status");
+            const submitButton = document.getElementById("submitButton");
+
+            // Process multiple RSS URLs: split by newline, trim whitespace, and remove any empty lines.
+            const rssUrls = rssUrlsRaw.split('\n').map(url => url.trim()).filter(url => url.length > 0);
+
+            if (rssUrls.length === 0) {
+                statusEl.textContent = "请输入至少一个有效的 RSS 链接。";
+                statusEl.className = 'status-message mt-6 text-center text-sm font-medium text-red-600';
+                return;
+            }
+            
+            // --- UI Feedback ---
+            statusEl.textContent = "正在保存...";
+            statusEl.className = 'status-message mt-6 text-center text-sm font-medium text-gray-500';
+            submitButton.disabled = true;
+            submitButton.textContent = '保存中...';
+            submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+
+            // --- Real Cloudflare Worker Interaction ---
+            console.log("Sending POST request to Cloudflare Worker with data:", { rssUrls, email, emailSubject });
+
+            try {
+                const response = await fetch(workerUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ rssUrls, email, emailSubject }),
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || `HTTP error! status: ${response.status}`);
+                }
+
+                const resultText = await response.text();
+
+                // --- Success State ---
+                statusEl.textContent = resultText;
+                statusEl.className = 'status-message mt-6 text-center text-sm font-medium text-green-600';
+
+            } catch (error) {
+                // --- Error State ---
+                statusEl.textContent = `保存失败: ${error.message}`;
+                statusEl.className = 'status-message mt-6 text-center text-sm font-medium text-red-600';
+            } finally {
+                // --- Reset Button ---
+                submitButton.disabled = false;
+                submitButton.textContent = '保存设置';
+                submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        });
+    </script>
+</body>
+</html>

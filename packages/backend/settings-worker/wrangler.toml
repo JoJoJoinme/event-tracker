@@ -1,0 +1,15 @@
+name = "event-tracker-settings-worker"
+main = "src/index.js"
+compatibility_date = "2024-05-01"
+
+# =================================================================
+# Production Environment (default)
+# Deploys when you run `wrangler deploy`
+# =================================================================
+[vars]
+# 生产环境中，只允许来自线上前端页面的请求
+ALLOWED_ORIGINS = "https://4c75ab09.event-tracker-page.pages.dev, https://event-tracker-page.pages.dev"
+
+[[kv_namespaces]]
+binding = "SENTINEL_KV"
+id = "96e130f94f4f4cf48b63b5722a75ae33"

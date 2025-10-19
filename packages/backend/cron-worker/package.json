@@ -1,0 +1,12 @@
+{
+  "name": "cron-worker",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "rss-parser": "^3.13.0"
+  }
+}

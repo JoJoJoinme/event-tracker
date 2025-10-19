@@ -1,0 +1,22 @@
+# =================================================================
+# Production Environment Configuration
+# To deploy, run: `wrangler deploy -c wrangler.toml`
+# =================================================================
+name = "event-tracker-cron-worker"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+RESEND_FROM_EMAIL = "onboarding@resend.dev"
+DEBUG = "false"
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[[kv_namespaces]]
+binding = "SENTINEL_KV"
+id = "96e130f94f4f4cf48b63b5722a75ae33"
+
+[observability]
+logs = { enabled = true, head_sampling_rate = 1, invocation_logs = true }

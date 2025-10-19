@@ -1,0 +1,8 @@
+# Dependencies
+node_modules/
+
+# Wrangler secrets
+.dev.vars
+
+# Wrangler state
+.wrangler

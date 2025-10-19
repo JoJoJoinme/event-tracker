@@ -1,0 +1,3 @@
+name = "event-tracker-page"
+type = "static"
+pages_build_output_dir = "frontend"

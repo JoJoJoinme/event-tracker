@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Garmin Watchface Config Optimizer</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">Connect IQ Watchface Prototype</p>
+      <h1>Garmin 表盘配置预览器</h1>
+      <p class="subtitle">先不接 Garmin。今天版本先解决：配置空间太大、无法快速预览、很难选最佳配置。</p>
+    </div>
+    <div class="header-actions">
+      <button id="generateBtn" class="primary">生成候选预览</button>
+      <button id="resetBtn" class="ghost">重置</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="panel controls">
+      <section>
+        <h2>1. 输入目标表盘</h2>
+        <label>
+          Connect IQ Store 链接 / 表盘名
+          <input id="watchfaceInput" type="text" value="Data Lover / Glance 风格复杂表盘" />
+        </label>
+        <p class="hint">MVP 暂不抓官网。这里先作为目标表盘备注，后续再接 Android 自动遍历设置项。</p>
+      </section>
+
+      <section>
+        <h2>2. 选择偏好</h2>
+        <div class="grid-two">
+          <label>
+            使用场景
+            <select id="scenario">
+              <option value="daily">日常</option>
+              <option value="running">跑步</option>
+              <option value="night">夜间</option>
+              <option value="data">数据密集</option>
+            </select>
+          </label>
+          <label>
+            设备
+            <select id="device">
+              <option value="fr265">Forerunner 265 · 416×416 AMOLED</option>
+              <option value="generic">Generic Round Watch · 416×416</option>
+            </select>
+          </label>
+          <label>
+            信息密度
+            <select id="density">
+              <option value="balanced">平衡</option>
+              <option value="minimal">极简</option>
+              <option value="dense">高密度</option>
+            </select>
+          </label>
+          <label>
+            电量优先级
+            <select id="batteryPriority">
+              <option value="medium">中</option>
+              <option value="high">高</option>
+              <option value="low">低</option>
+            </select>
+          </label>
+          <label>
+            风格
+            <select id="stylePref">
+              <option value="clean">干净清晰</option>
+              <option value="sport">运动感</option>
+              <option value="tech">科技感</option>
+              <option value="classic">传统仪表</option>
+            </select>
+          </label>
+          <label>
+            秒数显示
+            <select id="secondsPref">
+              <option value="gesture">仅抬腕</option>
+              <option value="off">不显示</option>
+              <option value="always">始终显示</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section>
+        <h2>3. 设置项 Schema</h2>
+        <textarea id="schemaInput" spellcheck="false"></textarea>
+        <div class="schema-actions">
+          <button id="loadSimple" class="ghost small">极简 schema</button>
+          <button id="loadComplex" class="ghost small">复杂 schema</button>
+        </div>
+        <p class="hint">这模拟从 Connect IQ 设置页读出来的选项。今天先手动/内置；下一版可以用 Android UI 自动化生成。</p>
+      </section>
+    </aside>
+
+    <section class="workspace">
+      <div class="summary-row">
+        <div class="metric">
+          <span id="candidateCount">0</span>
+          <small>候选配置</small>
+        </div>
+        <div class="metric">
+          <span id="topScore">-</span>
+          <small>最高分</small>
+        </div>
+        <div class="metric">
+          <span id="bestLabel">未生成</span>
+          <small>当前推荐</small>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div>
+          <h2>Top 候选预览</h2>
+          <p>点击卡片查看配置理由和手动设置步骤。</p>
+        </div>
+        <label class="inline-filter">
+          展示数量
+          <select id="limitSelect">
+            <option value="12">Top 12</option>
+            <option value="24">Top 24</option>
+            <option value="48">Top 48</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="cards" class="cards empty">
+        <div class="empty-state">
+          <h3>先生成一批配置</h3>
+          <p>默认会从内置设置项中采样 200 个候选，按可读性、信息密度、AMOLED 友好度和你的偏好排序。</p>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel detail">
+      <h2>推荐详情</h2>
+      <div id="detailBox" class="detail-empty">
+        <p>选择一个候选配置后，这里会显示评分拆解、推荐理由、缺点和导出配置。</p>
+      </div>
+    </aside>
+  </main>
+
+  <template id="cardTemplate">
+    <article class="card">
+      <div class="preview"></div>
+      <div class="card-body">
+        <div class="card-title-row">
+          <strong class="card-title"></strong>
+          <span class="score-pill"></span>
+        </div>
+        <p class="card-subtitle"></p>
+        <div class="tags"></div>
+      </div>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>

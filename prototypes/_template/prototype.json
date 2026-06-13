@@ -1,0 +1,25 @@
+{
+  "name": "_template",
+  "stage": "P0-htmlpreview",
+  "status": "interaction-draft",
+  "runtime": "static",
+  "entry": "index.html",
+  "repository": "JoJoJoinme/event-tracker",
+  "path": "prototypes/_template",
+  "preview": {
+    "htmlpreview": "https://htmlpreview.github.io/?https://github.com/JoJoJoinme/event-tracker/blob/master/prototypes/_template/index.html",
+    "vercelPreview": "",
+    "vercelProduction": ""
+  },
+  "modes": ["mock"],
+  "assumptions": [
+    "The prototype uses static mock data.",
+    "The first version only validates the main interaction.",
+    "P0 avoids backend, login, database, and deployment configuration."
+  ],
+  "nextSteps": [
+    "Validate the interaction in htmlpreview.",
+    "Upgrade to P1 if the interaction is accepted.",
+    "Upgrade to Vercel Preview when stable sharing or deploy-side debugging is needed."
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "_template-app",
+  "stage": "P1-structured-static-app",
+  "status": "structured-template",
+  "runtime": "vite",
+  "entry": "src/main.js",
+  "repository": "JoJoJoinme/event-tracker",
+  "path": "prototypes/_template-app",
+  "preview": {
+    "htmlpreview": "",
+    "vercelPreview": "",
+    "vercelProduction": ""
+  },
+  "modes": ["mock"],
+  "debug": {
+    "enabled": true,
+    "query": "?debug=1"
+  },
+  "assumptions": [
+    "The template uses static mock data.",
+    "The app is ready for online preview deployment.",
+    "Server-side mode is reserved for a later stage."
+  ],
+  "nextSteps": [
+    "Copy this folder to prototypes/<prototype-name>.",
+    "Update package name, prototype metadata, and UI copy.",
+    "Run build and smoke scripts before preview deployment."
+  ]
+}
